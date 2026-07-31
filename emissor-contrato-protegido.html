@@ -1142,17 +1142,27 @@ function gerarPDFInterno() {
   doc.text(`${compradorNome}  CPF: ${compradorCpf}`, pageWidth / 2, y, { align: 'center' });
 
   const nomeArquivo = `declaracao_venda_${compradorNome}`.replace(/\s+/g, '_').toLowerCase() + '.pdf';
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
   try {
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = nomeArquivo;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+
+    if (isIOS) {
+      // iPhone (Safari) não permite forçar download via JS — abre o PDF na tela
+      window.open(blobUrl, '_blank');
+      setTimeout(() => {
+        alert('O contrato abriu em uma nova aba.\n\nPra imprimir ou salvar: toque no ícone de compartilhar (o quadrado com a seta pra cima) e escolha "Imprimir" ou "Salvar em Arquivos".');
+      }, 400);
+    } else {
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = nomeArquivo;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
   } catch (err) {
     alert('Não foi possível baixar o PDF automaticamente. Vou abrir em uma nova aba, use o menu do navegador para salvar.\n\nDetalhe do erro: ' + err.message);
     try {
