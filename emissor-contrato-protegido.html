@@ -539,14 +539,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   <div style="max-width:340px; width:100%; background:#161814; border:1px solid #2a2e26; border-radius:14px; padding:30px; text-align:center;">
     <h2 style="color:#b6ff3c; margin-bottom:18px; font-size:1.2rem;">🔒 Acesso restrito</h2>
     <p style="color:#999; font-size:0.85rem; margin-bottom:16px;">Digite a senha para acessar o emissor de contrato</p>
-        <div style="position:relative; margin-bottom:12px;">
-    <div style="position:relative; margin-bottom:12px;">
-      <input type="password" id="inputSenha" placeholder="Senha" style="width:100%; background:#0d0f0d; border:1px solid #333; color:#f0f0f0; padding:12px 44px 12px 12px; border-radius:8px; font-size:1rem; text-align:center;" onkeydown="if(event.key==='Enter') verificarSenha()">
-      <span id="olhoSenha" onclick="alternarVisibilidadeSenha()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; user-select:none; display:flex; align-items:center; color:#999;">
-        <svg id="iconeOlhoAberto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
-        <svg id="iconeOlhoFechado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.29 20.29 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.29 20.29 0 0 1-3.22 4.44M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-      </span>
-    </div>
+    <input type="password" id="inputSenha" placeholder="Senha" style="width:100%; background:#0d0f0d; border:1px solid #333; color:#f0f0f0; padding:12px; border-radius:8px; font-size:1rem; margin-bottom:12px; text-align:center;" onkeydown="if(event.key==='Enter') verificarSenha()">
     <button onclick="verificarSenha()" style="width:100%; background:#b6ff3c; color:#0d0f0d; border:none; padding:12px; font-size:1rem; font-weight:700; border-radius:8px; cursor:pointer;">Entrar</button>
     <p id="msgSenhaErrada" style="color:#ff5c5c; font-size:0.82rem; margin-top:12px; display:none;">Senha incorreta. Tente de novo.</p>
   </div>
@@ -562,7 +555,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     <div class="grid">
       <div class="field-full">
         <label>Nome completo</label>
-        <input type="text" id="compradorNome" placeholder="Ex: Yuri Cavalcante Miranda">
+        <input type="text" id="compradorNome" placeholder="Ex: Maria de Lourdes Martins Gomes Ramos">
       </div>
       <div>
         <label>CPF</label>
@@ -570,7 +563,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       </div>
       <div>
         <label>Telefone</label>
-        <input type="text" id="compradorTelefone" placeholder="(83) 9 9999-8888" maxlength="15" oninput="aplicarMascara(this, maskPhone)">
+        <input type="text" id="compradorTelefone" placeholder="(83) 9 8845-4309" maxlength="15" oninput="aplicarMascara(this, maskPhone)">
       </div>
       <div class="field-full">
         <label>Endereço completo</label>
@@ -592,11 +585,11 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       </div>
       <div>
         <label>Placa</label>
-        <input type="text" id="veiculoPlaca" placeholder="Ex: ABC1D23" maxlength="7" oninput="aplicarMascara(this, maskPlaca)">
+        <input type="text" id="veiculoPlaca" placeholder="Ex: FYV7A68" maxlength="7" oninput="aplicarMascara(this, maskPlaca)">
       </div>
       <div>
         <label>Quilometragem</label>
-        <input type="text" id="veiculoKm" placeholder="Ex: 10.000" oninput="aplicarMascara(this, maskInteiro)">
+        <input type="text" id="veiculoKm" placeholder="Ex: 40.600" oninput="aplicarMascara(this, maskInteiro)">
       </div>
       <div>
         <label>Valor do veículo (R$)</label>
@@ -1149,27 +1142,17 @@ function gerarPDFInterno() {
   doc.text(`${compradorNome}  CPF: ${compradorCpf}`, pageWidth / 2, y, { align: 'center' });
 
   const nomeArquivo = `declaracao_venda_${compradorNome}`.replace(/\s+/g, '_').toLowerCase() + '.pdf';
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
   try {
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
-
-    if (isIOS) {
-      // iPhone (Safari) não permite forçar download via JS — abre o PDF na tela
-      window.open(blobUrl, '_blank');
-      setTimeout(() => {
-        alert('O contrato abriu em uma nova aba.\n\nPra imprimir ou salvar: toque no ícone de compartilhar (o quadrado com a seta pra cima) e escolha "Imprimir" ou "Salvar em Arquivos".');
-      }, 400);
-    } else {
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = nomeArquivo;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = nomeArquivo;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
   } catch (err) {
     alert('Não foi possível baixar o PDF automaticamente. Vou abrir em uma nova aba, use o menu do navegador para salvar.\n\nDetalhe do erro: ' + err.message);
     try {
@@ -1189,21 +1172,6 @@ document.getElementById('dataContrato').valueAsDate = new Date();
 /* ================= TELA DE SENHA ================= */
 // Troque "inovi2026" pela senha que você quiser usar
 const SENHA_CORRETA = 'inovi2026';
-
-function alternarVisibilidadeSenha() {
-  const input = document.getElementById('inputSenha');
-  const iconeAberto = document.getElementById('iconeOlhoAberto');
-  const iconeFechado = document.getElementById('iconeOlhoFechado');
-  if (input.type === 'password') {
-    input.type = 'text';
-    iconeAberto.style.display = 'none';
-    iconeFechado.style.display = 'block';
-  } else {
-    input.type = 'password';
-    iconeAberto.style.display = 'block';
-    iconeFechado.style.display = 'none';
-  }
-}
 
 function verificarSenha() {
   const digitada = document.getElementById('inputSenha').value;
