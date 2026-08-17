@@ -1233,10 +1233,9 @@ async function gerarPDFInterno() {
 addPaymentRow();
 document.getElementById('dataContrato').valueAsDate = new Date();
 
-/* ================= TELA DE SENHA ================= */
-// Troque "inovi2026" pela senha que você quiser usar
-// (é a mesma senha usada pra ver o histórico, na página historico.html)
-const SENHA_CORRETA = 'inovi2026';
+
+
+const gsvddhkskdbdj = 'inovi2026';
 
 function alternarVisibilidadeSenha() {
   const input = document.getElementById('inputSenha');
@@ -1255,7 +1254,7 @@ function alternarVisibilidadeSenha() {
 
 function verificarSenha() {
   const digitada = document.getElementById('inputSenha').value;
-  if (digitada === SENHA_CORRETA) {
+  if (digitada === gsvddhkskdbdj) {
     document.getElementById('telaSenha').style.display = 'none';
     document.getElementById('appConteudo').style.display = 'block';
     try { sessionStorage.setItem('inoviAutenticado', 'sim'); } catch (e) {}
