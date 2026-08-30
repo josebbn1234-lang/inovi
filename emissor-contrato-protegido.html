@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -1478,24 +1478,53 @@ async function gerarPDFInterno() {
   const nomeArquivo = `declaracao_venda_${compradorNome}`.replace(/\s+/g, '_').toLowerCase() + '.pdf';
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-  await salvarNoHistorico({
-    nome: compradorNome,
-    cpf: compradorCpf,
-    veiculo: `${veiculoMarcaModelo}${veiculoAno ? ' ' + veiculoAno : ''}${veiculoPlaca ? ' - Placa ' + veiculoPlaca : ''}`,
-    total: formatMoneyBR(total),
-    dataEmissao: new Date().toLocaleString('pt-BR')
-  });
-
   try {
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
 
     if (isIOS) {
-      // iPhone (Safari) não permite forçar download via JS — abre o PDF na tela
-      window.open(blobUrl, '_blank');
-      setTimeout(() => {
-        alert('O contrato abriu em uma nova aba.\n\nPra imprimir ou salvar: toque no ícone de compartilhar (o quadrado com a seta pra cima) e escolha "Imprimir" ou "Salvar em Arquivos".');
-      }, 400);
+      let enviado = false;
+
+      // 1) Web Share API com arquivo — abre a folha de compartilhar nativa em um só toque
+      //    (chamada de forma síncrona, sem "await" antes, pra não perder o gesto do usuário)
+      if (navigator.share && navigator.canShare) {
+        try {
+          const arquivoPdf = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
+          if (navigator.canShare({ files: [arquivoPdf] })) {
+            navigator.share({ files: [arquivoPdf], title: nomeArquivo }).catch(err => {
+              if (err && err.name !== 'AbortError') {
+                console.error('Não foi possível compartilhar o PDF:', err);
+              }
+            });
+            enviado = true;
+          }
+        } catch (err) {
+          console.error('Web Share indisponível para este arquivo:', err);
+        }
+      }
+
+      // 2) Link de download comum — já funciona em várias versões recentes do Safari/iOS
+      if (!enviado) {
+        try {
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = nomeArquivo;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          enviado = true;
+        } catch (err) {
+          console.error('Download direto falhou no iPhone:', err);
+        }
+      }
+
+      // 3) Último recurso: abre em nova aba com instrução manual
+      if (!enviado) {
+        window.open(blobUrl, '_blank');
+        setTimeout(() => {
+          alert('O contrato abriu em uma nova aba.\n\nPra imprimir ou salvar: toque no ícone de compartilhar (o quadrado com a seta pra cima) e escolha "Imprimir" ou "Salvar em Arquivos".');
+        }, 400);
+      }
     } else {
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -1515,6 +1544,16 @@ async function gerarPDFInterno() {
       alert('Erro ao gerar o PDF: ' + err2.message);
     }
   }
+
+  // Histórico compartilhado (Firebase): roda em segundo plano e nunca deve travar
+  // nem impedir o download do contrato, mesmo se a internet estiver lenta/offline.
+  salvarNoHistorico({
+    nome: compradorNome,
+    cpf: compradorCpf,
+    veiculo: `${veiculoMarcaModelo}${veiculoAno ? ' ' + veiculoAno : ''}${veiculoPlaca ? ' - Placa ' + veiculoPlaca : ''}`,
+    total: formatMoneyBR(total),
+    dataEmissao: new Date().toLocaleString('pt-BR')
+  });
 }
 
 // Inicializa com uma linha de pagamento por padrão
