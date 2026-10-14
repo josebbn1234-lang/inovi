@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INOVI Veículos - Histórico de Contratos</title>
+<title>Histórico de Contratos</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -45,6 +45,8 @@
   }
   .contrato-card .nome { font-weight: 700; color: #f0f0f0; font-size: 1rem; }
   .contrato-card .info { font-size: 0.82rem; color: #999; margin-top: 3px; }
+  .contrato-card .pagamentos { font-size: 0.8rem; color: #ccc; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #2a2e26; }
+  .contrato-card .pagamentos div { margin-top: 2px; }
   .contrato-card .total { font-size: 1rem; color: #b6ff3c; font-weight: 700; margin-top: 8px; }
   .contrato-card .data { font-size: 0.74rem; color: #666; margin-top: 4px; }
 
@@ -193,7 +195,12 @@ function renderizarLista() {
       <div class="nome">${c.nome || '-'}</div>
       <div class="info">CPF: ${c.cpf || '-'}</div>
       <div class="info">${c.veiculo || '-'}</div>
-      <div class="total">R$ ${c.total || '0,00'}</div>
+      ${
+        c.formasPagamento && c.formasPagamento.length
+          ? `<div class="pagamentos">${c.formasPagamento.map(f => `<div>• ${f}</div>`).join('')}</div>`
+          : `<div class="pagamentos" style="color:#666; font-style:italic;">Formas de pagamento não registradas (contrato emitido antes dessa função)</div>`
+      }
+      <div class="total">TOTAL: R$ ${c.total || '0,00'}</div>
       <div class="data">Emitido em ${c.dataEmissao || '-'}</div>
     </div>
   `).join('');
