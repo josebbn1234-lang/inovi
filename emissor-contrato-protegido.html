@@ -1547,11 +1547,18 @@ async function gerarPDFInterno() {
 
   // Histórico compartilhado (Firebase): roda em segundo plano e nunca deve travar
   // nem impedir o download do contrato, mesmo se a internet estiver lenta/offline.
+  const formasPagamentoResumo = paymentLines.map(l => {
+    let linha = `${l.label}: R$ ${formatMoneyBR(l.valor)}`;
+    if (l.detalhe) linha += ` (${l.detalhe})`;
+    return linha;
+  });
+
   salvarNoHistorico({
     nome: compradorNome,
     cpf: compradorCpf,
     veiculo: `${veiculoMarcaModelo}${veiculoAno ? ' ' + veiculoAno : ''}${veiculoPlaca ? ' - Placa ' + veiculoPlaca : ''}`,
     total: formatMoneyBR(total),
+    formasPagamento: formasPagamentoResumo,
     dataEmissao: new Date().toLocaleString('pt-BR')
   });
 }
